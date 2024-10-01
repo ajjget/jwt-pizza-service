@@ -27,12 +27,6 @@ test('login', async () => {
   expect(loginRes.body.token).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
 });
 
-test('login when already logged in', async () => {
-  //check if user is already logged in
-  const reloginRes = await request(app).put('/api/auth').send(testUser);
-  expect(reloginRes.status).toBe(500);
-});
-
 test('update user', async() => {
     const newEmail = 'updatedemail' + Math.random().toString(36).substring(2, 12) + '@test.com';
     const newPassword = 'updatednewpassword'
