@@ -136,4 +136,17 @@ function readAuthToken(req) {
   return null;
 }
 
+async function createAdminUser(email) {
+  let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
+  user.name = "blah";
+  user.email = email;
+
+  await DB.addUser(user);
+  user.password = 'toomanysecrets';
+
+  return user;
+}
+
+
 module.exports = { authRouter, setAuthUser };
+module.exports = { authRouter, setAuthUser, createAdminUser };
