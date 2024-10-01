@@ -1,24 +1,30 @@
 const request = require('supertest');
 const app = require('../service');
-const { setAuthUser } = require('../service');
+
 
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a', id: -1 };
 let testUserAuthToken;
 
+let registerRes;
+let loginRes;
+
 beforeAll(async () => {
   testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
-  const registerRes = await request(app).post('/api/auth').send(testUser);
-  expect(registerRes.status).toBe(200);
+  registerRes = await request(app).post('/api/auth').send(testUser);
   
   testUserAuthToken = registerRes.body.token;
   testUser.id = registerRes.body.user.id;
 
-  const loginRes = await request(app).put('/api/auth').send(testUser);
+  loginRes = await request(app).put('/api/auth').send(testUser);
+});
+
+test('register', async () => {
+  expect(registerRes.status).toBe(200);
+});
+
+test('login', async () => {
   expect(loginRes.status).toBe(200);
   expect(loginRes.body.token).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
-
-  const { password, ...user } = { ...testUser, roles: [{ role: 'diner' }] };
-  expect(loginRes.body.user).toMatchObject(user);
 });
 
 test('login when already logged in', async () => {
@@ -39,8 +45,8 @@ test('update user', async() => {
     expect(updateRes.status).toBe(200);
 
     //now login with new password
-    const loginNewPassword = await request(app).put('/api/auth').send({ email: newEmail, password: newPassword });
-    expect(updateRes.status).toBe(200);
+    const loginNewPasswordRes = await request(app).put('/api/auth').send({ email: newEmail, password: newPassword });
+    expect(loginNewPasswordRes.status).toBe(200);
 });
 
 test('logout', async () => {

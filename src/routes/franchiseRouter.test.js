@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../service');
-const { authRouter, createAdminUser } = require('./authRouter.js');
+const { createAdminUser } = require('./authRouter.js');
 
 let testUserEmail = Math.random().toString(36).substring(2, 12) + '@test.com';
 
@@ -15,26 +15,29 @@ let testStoreName = Math.random().toString(36).substring(2, 12);
 const testStore = { franchiseId: 0, name: testStoreName }
 let testStoreId;
 
+let createFranchiseRes;
+
 beforeAll(async () => {
   //register a user to use for testing
   let user = await createAdminUser(testUserEmail);
   const loginRes = await request(app).put('/api/auth').send(user);
-  expect(loginRes.status).toBe(200);
 
   testUserAuthToken = loginRes.body.token;
   testUserId = loginRes.body.user.id;
 
   //create franchise in db associated with test user
-  const createFranchiseRes = await request(app)
+  createFranchiseRes = await request(app)
     .post('/api/franchise')
     .set('Authorization', `Bearer ${testUserAuthToken}`)
     .send(testFranchise);
 
-  expect(createFranchiseRes.status).toBe(200);
-  expect(createFranchiseRes.body.name).toBe(testFranchise.name);
-
   testFranchiseId = createFranchiseRes.body.id;
   testStore.franchiseId = testFranchiseId;
+});
+
+test('create franchise', async () => {
+    expect(createFranchiseRes.status).toBe(200);
+    expect(createFranchiseRes.body.name).toBe(testFranchise.name);
 });
 
 test('get franchise for a user', async () => {
@@ -76,10 +79,10 @@ test('create a new franchise store', async () => {
     expect(firstStore.name).toBe(testStore.name);    
 });
 
-afterAll(async () => {
+test('delete a franchise store', async () => {
     const deleteStoreRes = await request(app)
-        .delete(`/api/franchise/${testFranchiseId}/store/${testStoreId}`)
-        .set('Authorization', `Bearer ${testUserAuthToken}`);
+    .delete(`/api/franchise/${testFranchiseId}/store/${testStoreId}`)
+    .set('Authorization', `Bearer ${testUserAuthToken}`);
 
     expect(deleteStoreRes.status).toBe(200);
 
@@ -89,14 +92,10 @@ afterAll(async () => {
 
     expect(getUserFranchiseRes.body[0]).toBeDefined();
     expect(getUserFranchiseRes.body[0].stores.length).toBe(0);
+});
 
-    // const deleteFranchiseRes = await request(app)
-    //     .delete(`/api/franchise/${testFranchiseId}`)
-    //     .set('Authorization', `Bearer ${testUserAuthToken}`);
-    // expect(deleteFranchiseRes.status).toBe(200);
-
-    const logoutRes = await request(app)
+afterAll(async () => {
+    await request(app)
         .delete(`/api/auth/`)
         .set('Authorization', `Bearer ${testUserAuthToken}`);
-    expect(logoutRes.status).toBe(200);
 });

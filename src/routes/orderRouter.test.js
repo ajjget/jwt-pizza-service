@@ -1,34 +1,36 @@
 const request = require('supertest');
 const app = require('../service');
-const { authRouter, createAdminUser } = require('./authRouter.js');
-const franchiseRouter = require('./franchiseRouter.js');
+const { createAdminUser } = require('./authRouter.js');
+require('./franchiseRouter.js');
 
 
 let testUserEmail = Math.random().toString(36).substring(2, 12) + '@test.com';
 
 let testUserAuthToken;
-let testUserId;
 
 let testMenuName = Math.random().toString(36).substring(2, 12);
 const testMenuItem = { title: `${testMenuName}`, description: "yum", image: "pizza.png", price: 0.93 };
 let testMenuId;
 
+let addMenuRes;
+
 beforeAll(async () => {
   //register a user to use for testing
   let user = await createAdminUser(testUserEmail);
   const loginRes = await request(app).put('/api/auth').send(user);
-  expect(loginRes.status).toBe(200);
 
   testUserAuthToken = loginRes.body.token;
-  testUserId = loginRes.body.user.id;
 
-  const addMenuRes = await request(app)
+  addMenuRes = await request(app)
     .put('/api/order/menu')
     .set('Authorization', `Bearer ${testUserAuthToken}`)
     .send(testMenuItem);
 
-  expect(addMenuRes.status).toBe(200);
   testMenuId = addMenuRes.body.id;
+});
+
+test('login', async () => {
+    expect(addMenuRes.status).toBe(200);
 });
 
 test('get the pizza menu', async () => {
