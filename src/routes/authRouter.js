@@ -147,6 +147,5 @@ async function createAdminUser(email) {
   return user;
 }
 
-
 module.exports = { authRouter, setAuthUser };
 module.exports = { authRouter, setAuthUser, createAdminUser };
