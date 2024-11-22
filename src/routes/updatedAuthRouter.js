@@ -74,15 +74,14 @@ authRouter.post(
 
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
-      metrics.incrementFailedAuth();
       return res.status(400).json({ message: 'name, email, and password are required' });
     }
     metrics.incrementSuccessfulAuth();
-
+    
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
     const auth = await setAuth(user);
-    res.json({ user: user, token: auth });
     metrics.msRequestLatency(performance.now() - startTime);
+    res.json({ user: user, token: auth });
   })
 );
 
@@ -98,8 +97,9 @@ authRouter.put(
     const { email, password } = req.body;
     const user = await DB.getUser(email, password);
     const auth = await setAuth(user);
-    res.json({ user: user, token: auth });
     metrics.msRequestLatency(performance.now() - startTime);
+
+    res.json({ user: user, token: auth });
   })
 );
 
@@ -113,8 +113,10 @@ authRouter.delete(
     metrics.incrementTotalRequests();
 
     await clearAuth(req);
+
     metrics.incrementSuccessfulAuth();
     metrics.msRequestLatency(performance.now() - startTime);
+
     res.json({ message: 'logout successful' });
   })
 );
@@ -135,9 +137,9 @@ authRouter.put(
       return res.status(403).json({ message: 'unauthorized' });
     }
     metrics.incrementSuccessfulAuth();
+    metrics.msRequestLatency(performance.now() - startTime);
 
     const updatedUser = await DB.updateUser(userId, email, password);
-    metrics.msRequestLatency(performance.now() - startTime);
     res.json(updatedUser);
   })
 );

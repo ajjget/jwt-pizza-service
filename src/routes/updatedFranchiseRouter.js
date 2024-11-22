@@ -97,7 +97,6 @@ franchiseRouter.post(
     const startTime = performance.now();
     metrics.incrementTotalRequests();
     metrics.incrementPostRequests();
-
     if (!req.user.isRole(Role.Admin)) {
       throw new StatusCodeError('unable to create a franchise', 403);
     }
@@ -115,8 +114,7 @@ franchiseRouter.delete(
     const startTime = performance.now();
     metrics.incrementTotalRequests();
     metrics.incrementDeleteRequests();
-
-    if (!(await req.user.isRole(Role.Admin))) {
+    if (!req.user.isRole(Role.Admin)) {
       throw new StatusCodeError('unable to delete a franchise', 403);
     }
 
@@ -135,7 +133,6 @@ franchiseRouter.post(
     const startTime = performance.now();
     metrics.incrementTotalRequests();
     metrics.incrementPostRequests();
-
     const franchiseId = Number(req.params.franchiseId);
     const franchise = await DB.getFranchise({ id: franchiseId });
     if (!franchise || (!req.user.isRole(Role.Admin) && !franchise.admins.some((admin) => admin.id === req.user.id))) {
