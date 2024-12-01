@@ -178,7 +178,7 @@ function latencyMetrics(buf) {
 }
 
 function sendMetricsPeriodically(period) {
-  const timer = setInterval(() => {
+  setInterval(() => {
     try {
       const buf = new MetricsBuilder();
       httpMetrics(buf);
