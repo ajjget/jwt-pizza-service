@@ -68,7 +68,7 @@ authRouter.authenticateToken = (req, res, next) => {
 authRouter.post(
   '/',
   asyncHandler(async (req, res) => {
-    const startTime = performance.now();
+    const startTime = Date.now();
     metrics.incrementTotalRequests();
     metrics.incrementPostRequests();
 
@@ -82,7 +82,8 @@ authRouter.post(
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
     const auth = await setAuth(user);
     res.json({ user: user, token: auth });
-    metrics.msRequestLatency(performance.now() - startTime);
+    metrics.updateMsRequestLatency(Date.now() - startTime);
+    metrics.incrementActiveUsers();
   })
 );
 
@@ -90,7 +91,7 @@ authRouter.post(
 authRouter.put(
   '/',
   asyncHandler(async (req, res) => {
-    const startTime = performance.now();
+    const startTime = Date.now();
     metrics.incrementTotalRequests();
     metrics.incrementPutRequests();
     metrics.incrementSuccessfulAuth();
@@ -99,7 +100,8 @@ authRouter.put(
     const user = await DB.getUser(email, password);
     const auth = await setAuth(user);
     res.json({ user: user, token: auth });
-    metrics.msRequestLatency(performance.now() - startTime);
+    metrics.updateMsRequestLatency(Date.now() - startTime);
+    metrics.incrementActiveUsers();
   })
 );
 
@@ -108,13 +110,14 @@ authRouter.delete(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
-    const startTime = performance.now();
+    const startTime = Date.now();
     metrics.incrementDeleteRequests();
     metrics.incrementTotalRequests();
 
     await clearAuth(req);
     metrics.incrementSuccessfulAuth();
-    metrics.msRequestLatency(performance.now() - startTime);
+    metrics.updateMsRequestLatency(Date.now() - startTime);
+    metrics.decrementActiveUsers();
     res.json({ message: 'logout successful' });
   })
 );
@@ -124,7 +127,7 @@ authRouter.put(
   '/:userId',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
-    const startTime = performance.now();
+    const startTime = Date.now();
     metrics.incrementTotalRequests();
     metrics.incrementPutRequests();
 
@@ -137,7 +140,7 @@ authRouter.put(
     metrics.incrementSuccessfulAuth();
 
     const updatedUser = await DB.updateUser(userId, email, password);
-    metrics.msRequestLatency(performance.now() - startTime);
+    metrics.updateMsRequestLatency(Date.now() - startTime);
     res.json(updatedUser);
   })
 );
@@ -173,6 +176,11 @@ async function createAdminUser(email) {
 
   return user;
 }
+
+authRouter.use((err, req, res, next) => {
+  metrics.incrementFailedAuth();
+  next(err);
+});
 
 module.exports = { authRouter, setAuthUser };
 module.exports = { authRouter, setAuthUser, createAdminUser };

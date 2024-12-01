@@ -16,6 +16,8 @@ beforeAll(async () => {
   testUser.id = registerRes.body.user.id;
 
   loginRes = await request(app).put('/api/auth').send(testUser);
+  console.log("heyo");
+  // console.log(loginRes);
 });
 
 test('register', async () => {

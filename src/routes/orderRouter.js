@@ -45,11 +45,8 @@ orderRouter.endpoints = [
 orderRouter.get(
   '/menu',
   asyncHandler(async (req, res) => {
-    const startTime = performance.now();
     metrics.incrementTotalRequests();
     metrics.incrementGetRequests();
-
-    metrics.msRequestLatency(performance.now() - startTime);
     res.send(await DB.getMenu());
   })
 );
@@ -59,17 +56,17 @@ orderRouter.put(
   '/menu',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
-    if (!req.user.isRole(Role.Admin)) {
-      const startTime = performance.now();
-      metrics.incrementTotalRequests();
-      metrics.incrementPutRequests();
-      
+    const startTime = Date.now();
+    if (!req.user.isRole(Role.Admin)) {      
       throw new StatusCodeError('unable to add menu item', 403);
     }
 
+    metrics.incrementTotalRequests();
+    metrics.incrementPutRequests();
+
     const addMenuItemReq = req.body;
     await DB.addMenuItem(addMenuItemReq);
-    metrics.msRequestLatency(performance.now() - startTime);
+    metrics.updateMsRequestLatency(Date.now() - startTime);
     res.send(await DB.getMenu());
   })
 );
@@ -79,11 +76,11 @@ orderRouter.get(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
-    const startTime = performance.now();
+    const startTime = Date.now();
     metrics.incrementTotalRequests();
     metrics.incrementGetRequests();
 
-    metrics.msRequestLatency(performance.now() - startTime);
+    metrics.updateMsRequestLatency(Date.now() - startTime);
     res.json(await DB.getOrders(req.user, req.query.page));
   })
 );
@@ -93,7 +90,7 @@ orderRouter.post(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
-    const startTime = performance.now();
+    const startTime = Date.now();
     metrics.incrementTotalRequests();
     metrics.incrementPostRequests();
 
@@ -107,9 +104,11 @@ orderRouter.post(
     });
     const j = await r.json();
     if (r.ok) {
-      metrics.pizzaCreationLatency(performance.now() - startTime);
-      metrics.updateTotalPizzas(res.order.items.length());
-      metrics.updateTotalRevenue(res.order.items.reduce((sum, item) => sum + item.price, 0));
+      metrics.updatePizzaCreationLatency(Date.now() - startTime);
+      for (let i = 0; i < order.items.length; i++) {
+        metrics.incrementTotalPizzas();
+        metrics.updateTotalRevenue(order.items[i].price);
+      }
       res.send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
     } else {
       metrics.incrementCreationFailures();

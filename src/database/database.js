@@ -4,15 +4,19 @@ const config = require('../config.js');
 const { StatusCodeError } = require('../endpointHelper.js');
 const { Role } = require('../model/model.js');
 const dbModel = require('./dbModel.js');
+const metrics = require('../metrics.js');
+
 class DB {
   constructor() {
     this.initialized = this.initializeDatabase();
   }
 
   async getMenu() {
+    const startTime = Date.now();
     const connection = await this.getConnection();
     try {
       const rows = await this.query(connection, `SELECT * FROM menu`);
+      metrics.updateMsRequestLatency(Date.now() - startTime);
       return rows;
     } finally {
       connection.end();
@@ -101,7 +105,8 @@ class DB {
     const connection = await this.getConnection();
     try {
       await this.query(connection, `INSERT INTO auth (token, userId) VALUES (?, ?)`, [token, userId]);
-    } finally {
+    } 
+    finally {
       connection.end();
     }
   }
@@ -121,6 +126,7 @@ class DB {
     token = this.getTokenSignature(token);
     const connection = await this.getConnection();
     try {
+      console.log("Trying to delete");
       await this.query(connection, `DELETE FROM auth WHERE token=?`, [token]);
     } finally {
       connection.end();

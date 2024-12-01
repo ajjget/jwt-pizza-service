@@ -22,6 +22,7 @@ class Metrics {
     this.postRequests = 0;
     this.deleteRequests = 0;
 
+    this.activeUsers = 0;
     this.successfulAuth = 0;
     this.failedAuth = 0;
 
@@ -64,6 +65,14 @@ class Metrics {
     this.failedAuth++;
   }
 
+  incrementActiveUsers() {
+    this.activeUsers++;
+  }
+
+  decrementActiveUsers() {
+    this.activeUsers--;
+  }
+
   getCpuUsagePercentage() {
     const cpuUsage = os.loadavg()[0] / os.cpus().length;
     this.cpuPercentage = cpuUsage.toFixed(2) * 100;
@@ -77,8 +86,8 @@ class Metrics {
     this.memoryPercentage = memoryUsage.toFixed(2);
   }
 
-  updateTotalPizzas(pizzas) {
-    this.pizzas += pizzas;
+  incrementTotalPizzas() {
+    this.pizzas++;
   }
 
   incrementCreationFailures() {
@@ -94,16 +103,12 @@ class Metrics {
   }
 
   updateMsRequestLatency(msRequestLatency) {
-    this.msRequestLatency = msRequestLatency;
+    // console.log(`Updating msRequestLatency to: ${msRequestLatency}`);
+    if (msRequestLatency != 0)
+      this.msRequestLatency = msRequestLatency;
   }
 
   sendMetricToGrafana(metrics) {
-    // prefix is table of metrics you're creating (widest grouping), ex requests, auth, etc
-    // method is a label you can use to sort wht specific metric you're looking at (etc. get, total, etc)
-    // metric name will be "total" for all of them
-
-    console.log(metrics);
-
     fetch(`${config.url}`, {
       method: 'post',
       body: metrics,
@@ -156,6 +161,7 @@ function httpMetrics(buf) {
 }
 
 function authMetrics(buf) {
+  buf.addMetric('ActiveUsers', 'ActiveUsers', metrics.activeUsers);
   buf.addMetric('Auth', 'SuccessfulAuthRequests', metrics.successfulAuth);
   buf.addMetric('Auth', 'FailedAuthRequests', metrics.failedAuth);
 }
@@ -163,7 +169,7 @@ function authMetrics(buf) {
 function purchaseMetrics(buf) {
   buf.addMetric('Purchase', 'PizzasPurchased', metrics.pizzas);
   buf.addMetric('Purchase', 'PizzaCreationFailures', metrics.creationFailures);
-  buf.addMetric('Purchase', 'Revenue', metrics.revenue);
+  buf.addMetric('Revenue', 'Revenue', metrics.revenue);
 }
 
 function latencyMetrics(buf) {
