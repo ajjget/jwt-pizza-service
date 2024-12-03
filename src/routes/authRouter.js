@@ -1,4 +1,5 @@
 const express = require('express');
+const app = express();
 const jwt = require('jsonwebtoken');
 const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
@@ -81,9 +82,10 @@ authRouter.post(
 
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
     const auth = await setAuth(user);
-    res.json({ user: user, token: auth });
+
     metrics.updateMsRequestLatency(Date.now() - startTime);
     metrics.incrementActiveUsers();
+    res.json({ user: user, token: auth });
   })
 );
 
