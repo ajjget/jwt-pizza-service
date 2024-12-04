@@ -1,4 +1,4 @@
-const config = require('./config.json');
+const config = require('./config.js');
 
 
 const os = require('os');
@@ -109,10 +109,10 @@ class Metrics {
   }
 
   sendMetricToGrafana(metrics) {
-    fetch(`${config.url}`, {
+    fetch(`${config.metrics.url}`, {
       method: 'post',
       body: metrics,
-      headers: { Authorization: `Bearer ${config.userId}:${config.apiKey}` },
+      headers: { Authorization: `Bearer ${config.metrics.userId}:${config.metrics.apiKey}` },
     })
       .then((response) => {
         if (!response.ok) {
@@ -134,7 +134,7 @@ class MetricsBuilder {
   }
 
   addMetric(metricPrefix, method, metricValue) {
-    this.metricList += `${metricPrefix},source=${config.source},method=${method} total=${metricValue} \n`;
+    this.metricList += `${metricPrefix},source=${config.metrics.source},method=${method} total=${metricValue} \n`;
   }
 
   toString() {
