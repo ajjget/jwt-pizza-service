@@ -108,6 +108,28 @@ class Metrics {
       this.msRequestLatency = msRequestLatency;
   }
 
+  clearAllMetrics() {
+    this.totalRequests = 0;
+    this.getRequests = 0;
+    this.putRequests = 0;
+    this.postRequests = 0;
+    this.deleteRequests = 0;
+
+    this.activeUsers = 0;
+    this.successfulAuth = 0;
+    this.failedAuth = 0;
+
+    this.cpuPercentage = 0;
+    this.memoryPercentage = 0.0;
+
+    this.pizzas = 0;
+    this.creationFailures = 0;
+    this.revenue = 0.0;
+
+    this.pizzaCreationLatency = 0.0;
+    this.msRequestLatency = 0.0;
+  }
+
   sendMetricToGrafana(metrics) {
     fetch(`${config.metrics.url}`, {
       method: 'post',
@@ -119,6 +141,7 @@ class Metrics {
           console.error(response.body);
           console.error('Failed to push metrics data to Grafana');
         } else {
+          this.clearAllMetrics();
           // console.log(`Pushed ${metrics}`);
         }
       })
