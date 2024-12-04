@@ -115,7 +115,6 @@ class Metrics {
     this.postRequests = 0;
     this.deleteRequests = 0;
 
-    this.activeUsers = 0;
     this.successfulAuth = 0;
     this.failedAuth = 0;
 
