@@ -210,7 +210,7 @@ function sendMetricsPeriodically(period) {
       latencyMetrics(buf);
 
       const metricsList = buf.toString();
-      this.clearAllMetrics();
+      metrics.clearAllMetrics();
       metrics.sendMetricToGrafana(metricsList);
     } catch (error) {
       console.log('Error sending metrics', error);
@@ -218,4 +218,4 @@ function sendMetricsPeriodically(period) {
   }, period);
 }
 
-sendMetricsPeriodically(5000);
+sendMetricsPeriodically(30000);
