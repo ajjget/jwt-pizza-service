@@ -141,7 +141,6 @@ class Metrics {
           console.error(response.body);
           console.error('Failed to push metrics data to Grafana');
         } else {
-          this.clearAllMetrics();
           // console.log(`Pushed ${metrics}`);
         }
       })
@@ -211,6 +210,7 @@ function sendMetricsPeriodically(period) {
       latencyMetrics(buf);
 
       const metricsList = buf.toString();
+      this.clearAllMetrics();
       metrics.sendMetricToGrafana(metricsList);
     } catch (error) {
       console.log('Error sending metrics', error);
