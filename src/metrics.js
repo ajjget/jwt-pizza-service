@@ -22,6 +22,8 @@ class Metrics {
     this.postRequests = 0;
     this.deleteRequests = 0;
 
+    this.getHomePageRequests = 0;
+
     this.activeUsers = 0;
     this.successfulAuth = 0;
     this.failedAuth = 0;
@@ -55,6 +57,10 @@ class Metrics {
 
   incrementDeleteRequests() {
     this.deleteRequests++;
+  }
+
+  incrementGetHomePageRequests() {
+    this.getHomePageRequests++;
   }
 
   incrementSuccessfulAuth() {
@@ -114,6 +120,7 @@ class Metrics {
     this.putRequests = 0;
     this.postRequests = 0;
     this.deleteRequests = 0;
+    this.getHomePageRequests = 0;
 
     this.successfulAuth = 0;
     this.failedAuth = 0;
@@ -179,6 +186,8 @@ function httpMetrics(buf) {
   buf.addMetric('HTTPRequests', 'PUTRequests', metrics.putRequests);
   buf.addMetric('HTTPRequests', 'POSTRequests', metrics.postRequests);
   buf.addMetric('HTTPRequests', 'DELETERequests', metrics.deleteRequests);
+
+  buf.addMetric('GetHomePageReq', 'GetHomePageRequests', metrics.getHomePageRequests);
 }
 
 function authMetrics(buf) {
