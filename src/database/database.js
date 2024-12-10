@@ -157,7 +157,7 @@ class DB {
       for (const item of order.items) {
         const menuId = await this.getID(connection, 'id', item.menuId, 'menu');
         const itemPrice = await this.getPrice(connection, 'id', item.menuId, 'menu');
-        order.price = itemPrice;
+        item.price = itemPrice;
         await this.query(connection, `INSERT INTO orderItem (orderId, menuId, description, price) VALUES (?, ?, ?, ?)`, [orderId, menuId, item.description, itemPrice]);
       }
       return { ...order, id: orderId };
@@ -313,6 +313,7 @@ class DB {
       [value]
     );
     if (rows.length > 0) {
+      console.log(rows[0].price);
       return rows[0].price;
     }
     throw new Error('No Price found');
