@@ -92,8 +92,9 @@ class DB {
         params.push(`email='${email}'`);
       }
       if (params.length > 0) {
-        const query = `UPDATE user SET ${params.join(', ')} WHERE id=${userId}`;
-        await this.query(connection, query);
+        const query = `UPDATE user SET ${params.map(() => '?').join(', ')} WHERE id=?`;
+        const values = [...params, userId];
+        await this.query(connection, query, values);
       }
       return this.getUser(email, password);
     } finally {
@@ -235,7 +236,10 @@ class DB {
       }
 
       franchiseIds = franchiseIds.map((v) => v.objectId);
-      const franchises = await this.query(connection, `SELECT id, name FROM franchise WHERE id in (${franchiseIds.join(',')})`);
+      const placeholders = franchiseIds.map(() => '?').join(',');
+      const query = `SELECT id, name FROM franchise WHERE id IN (${placeholders})`;
+      const franchises = await this.query(connection, query, franchiseIds);
+
       for (const franchise of franchises) {
         await this.getFranchise(franchise);
       }
