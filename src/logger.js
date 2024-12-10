@@ -41,11 +41,13 @@ class Logger {
   }
 
   sanitize(logData) {
+    const fieldsToSanitize = ["password", "token", "jwt"];
     logData = JSON.stringify(logData);
 
-    logData = logData.replace(/\\"password\\":\s*\\"[^"]*\\"/g, '\\"password\\": \\"*****\\"');
-    logData = logData.replace(/\\"token\\":\s*\\"[^"]*\\"/gi, '\\"token\\": \\"*****\\"');
-    logData = logData.replace(/\\"jwt\\":\s*\\"[^"]*\\"/gi, '\\"jwt\\": \\"*****\\"');
+    fieldsToSanitize.forEach((field) => {
+        const regex = new RegExp(`\\\\\"${field}\\\\\":\\s*\\\\\"(.*?)\\\\\"`, "gi");
+        logData = logData.replace(regex, `\\"${field}\\": \\"*****\\"`);
+    });
 
     return logData;
   }
