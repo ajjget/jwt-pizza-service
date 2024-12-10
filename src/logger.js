@@ -45,12 +45,13 @@ class Logger {
     logData = JSON.stringify(logData);
 
     fieldsToSanitize.forEach((field) => {
-        const regex = new RegExp(`\\\\\"${field}\\\\\":\\s*\\\\\"(.*?)\\\\\"`, "gi");
-        logData = logData.replace(regex, `\\"${field}\\": \\"*****\\"`);
+        const regex = new RegExp(`"${field}":\\s*".*?"`, "gi");
+        logData = logData.replace(regex, `"${field}": "*****"`);
     });
 
     return logData;
   }
+
 
   sendLogToGrafana(event) {
       const body = JSON.stringify(event);
