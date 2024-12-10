@@ -43,9 +43,9 @@ class Logger {
   sanitize(logData) {
     logData = JSON.stringify(logData);
 
-    logData.replace(/\\"password\\":\s*\\"[^"]*\\"/g, '\\"password\\": \\"*****\\"');
-    logData.replace(/\\"token\\":\s*\\"[^"]*\\"/gi, '\\"token\\": \\"*****\\"');
-    logData.replace(/\\"jwt\\":\s*\\"[^"]*\\"/gi, '\\"jwt\\": \\"*****\\"');
+    logData = logData.replace(/\\"password\\":\s*\\"[^"]*\\"/g, '\\"password\\": \\"*****\\"');
+    logData = logData.replace(/\\"token\\":\s*\\"[^"]*\\"/gi, '\\"token\\": \\"*****\\"');
+    logData = logData.replace(/\\"jwt\\":\s*\\"[^"]*\\"/gi, '\\"jwt\\": \\"*****\\"');
 
     return logData;
   }
