@@ -41,17 +41,14 @@ class Logger {
   }
 
   sanitize(logData) {
-    const fieldsToSanitize = ["password", "token", "jwt"];
     logData = JSON.stringify(logData);
 
-    fieldsToSanitize.forEach((field) => {
-        const regex = new RegExp(`"${field}":\\s*".*?"`, "gi");
-        logData = logData.replace(regex, `"${field}": "*****"`);
-    });
+    logData = logData.replace(/\\"password\\":\s*\\"[^"]*\\"/g, '\\"password\\": \\"*****\\"');
+    logData = logData.replace(/\\"token\\":\s*\\"[^"]*\\"/gi, '\\"token\\": \\"*****\\"');
+    logData = logData.replace(/\\"jwt\\":\s*\\"[^"]*\\"/gi, '\\"jwt\\": \\"*****\\"');
 
     return logData;
   }
-
 
   sendLogToGrafana(event) {
       const body = JSON.stringify(event);
